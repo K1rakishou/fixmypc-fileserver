@@ -1,7 +1,7 @@
 package com.kirakishou.fileserver.fixmypc.controller
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.kirakishou.fileserver.fixmypc.model.Constant
+import com.kirakishou.fileserver.fixmypc.model.ForwardedImageInfo
 import io.reactivex.Single
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
@@ -78,15 +78,5 @@ class ImageController {
 
                     return@flatMap Single.just(ResponseEntity.ok("123"))
                 }
-    }
-
-    class ForwardedImageInfo {
-        @JsonProperty("image_orig_name") val imageOrigName = arrayListOf<String>()
-        @JsonProperty("image_type") val imageType = arrayListOf<Int>()
-        @JsonProperty("image_name") val imageNewName = arrayListOf<String>()
-    }
-
-    enum class Answer(val value: Int) {
-        OK(0)
     }
 }
