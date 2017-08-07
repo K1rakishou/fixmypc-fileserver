@@ -42,6 +42,13 @@
 			<version>${kotlin.version}</version>
 		</dependency>
 
+		<!-- jackson -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-kotlin</artifactId>
+			<version>2.8.9</version>
+		</dependency>
+
 		<!-- RxJava -->
 		<dependency>
 			<groupId>io.reactivex.rxjava2</groupId>

@@ -1,5 +1,6 @@
 package com.kirakishou.fileserver.fixmypc.config
 
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer
 import org.springframework.boot.context.embedded.tomcat.TomcatConnectorCustomizer
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory
@@ -9,6 +10,10 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class AppConfig {
+
+    @Bean
+    open fun kotlinModule() = KotlinModule()
+
     @Bean
     @Throws(Exception::class)
     fun containerCustomizer(): EmbeddedServletContainerCustomizer {
