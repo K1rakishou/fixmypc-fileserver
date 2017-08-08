@@ -1,5 +1,6 @@
 package com.kirakishou.fileserver.fixmypc.model
 
-enum class FileserverAnswer(val value: Int) {
-    OK(0)
-}
+import com.fasterxml.jackson.annotation.JsonProperty
+
+data class FileserverAnswer(@JsonProperty("status_code") val statusCode: Int,
+                            @JsonProperty("bad_photo_names") val badPhotoNames: List<String>)

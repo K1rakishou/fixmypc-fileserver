@@ -1,6 +1,7 @@
 package com.kirakishou.fileserver.fixmypc.config
 
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.kirakishou.fileserver.fixmypc.log.FileLog
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer
 import org.springframework.boot.context.embedded.tomcat.TomcatConnectorCustomizer
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory
@@ -24,5 +25,10 @@ class AppConfig {
                 })
             }
         }
+    }
+
+    @Bean
+    fun provideFileLog(): FileLog {
+        return FileLog()
     }
 }
