@@ -2,8 +2,8 @@ package com.kirakishou.fileserver.fixmypc.controller
 
 import com.kirakishou.fileserver.fixmypc.log.FileLog
 import com.kirakishou.fileserver.fixmypc.model.Constant
-import com.kirakishou.fileserver.fixmypc.model.FileserverAnswer
 import com.kirakishou.fileserver.fixmypc.model.FileServerErrorCode
+import com.kirakishou.fileserver.fixmypc.model.FileserverAnswer
 import com.kirakishou.fileserver.fixmypc.model.ForwardedImageInfo
 import com.kirakishou.fileserver.fixmypc.util.ImageUtils
 import com.kirakishou.fileserver.fixmypc.util.StringUtils
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.multipart.MultipartFile
 import java.awt.Dimension
 import java.io.File
+import java.io.IOException
 import javax.annotation.PostConstruct
 
 @Controller
@@ -57,6 +58,7 @@ class ImageController {
                 .flatMap { photos ->
                     val badPhotos = arrayListOf<String>()
                     val size = imagesInfo.imageNewName.size
+                    var isNotEnoughtSpace = false
 
                     try {
                         for (index in 0 until size) {
@@ -83,20 +85,37 @@ class ImageController {
                             val fullPath = currentFolderDirPath + imageNewName + "_o" + '.' + extension
                             val file = File(fullPath)
 
+                            log.e("freeSpace = ${file.freeSpace}, totalSpace = ${file.totalSpace}, usableSpace = ${file.usableSpace}")
+                            val onePercent = file.totalSpace / 100
+
+                            if (file.freeSpace < onePercent) {
+                                isNotEnoughtSpace = true
+                                break
+                            }
+
                             if (file.exists()) {
                                 file.delete()
                             }
 
                             try {
-                                //save original image
+                                //copy original image
                                 imageMultipartFile.transferTo(file)
+
+                                //save large version of the image
+                                ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(2560, 2560), "_l", currentFolderDirPath, imageNewName, extension)
 
                                 //save medium version of the image
                                 ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(1536, 1536), "_m", currentFolderDirPath, imageNewName, extension)
 
                                 //save small version of the image
                                 ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(512, 512), "_s", currentFolderDirPath, imageNewName, extension)
-                            } catch (e: Exception) {
+
+                                //remove original image
+                                if (file.exists()) {
+                                    file.delete()
+                                }
+
+                            } catch (e: IOException) {
                                 if (file.exists()) {
                                     file.delete()
                                 }
@@ -110,6 +129,11 @@ class ImageController {
                         log.e(e)
                         return@flatMap Single.just(ResponseEntity.ok(FileserverAnswer(
                                 FileServerErrorCode.UNKNOWN_ERROR.value, emptyList())))
+                    }
+
+                    if (isNotEnoughtSpace) {
+                        return@flatMap Single.just(ResponseEntity.ok(FileserverAnswer(
+                                FileServerErrorCode.NOT_ENOUGH_DISK_SPACE.value, emptyList())))
                     }
 
                     if (badPhotos.isNotEmpty()) {
