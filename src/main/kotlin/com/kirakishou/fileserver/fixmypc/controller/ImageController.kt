@@ -5,6 +5,7 @@ import com.kirakishou.fileserver.fixmypc.model.Constant
 import com.kirakishou.fileserver.fixmypc.model.FileServerErrorCode
 import com.kirakishou.fileserver.fixmypc.model.FileserverAnswer
 import com.kirakishou.fileserver.fixmypc.model.ForwardedImageInfo
+import com.kirakishou.fileserver.fixmypc.service.DiskSpaceService
 import com.kirakishou.fileserver.fixmypc.util.ImageUtils
 import com.kirakishou.fileserver.fixmypc.util.StringUtils
 import io.reactivex.Single
@@ -28,8 +29,14 @@ class ImageController {
     @Value("\${server.images.path}")
     lateinit var imagesBasePath: String
 
+    @Value("\${server.disk-space-service.check-time-interval}")
+    var checkTimeInterval: Long = 0
+
     @Autowired
     lateinit var log: FileLog
+
+    @Autowired
+    lateinit var diskSpaceService: DiskSpaceService
 
     val imageFolderByType: Map<Int, String> by lazy {
         val map = HashMap<Int, String>()
@@ -48,6 +55,8 @@ class ImageController {
                 file.mkdir()
             }
         }
+
+        diskSpaceService.init(imagesBasePath, checkTimeInterval)
     }
 
     @RequestMapping(path = arrayOf("/v1/api/upload_image"), method = arrayOf(RequestMethod.POST))
@@ -58,7 +67,7 @@ class ImageController {
                 .flatMap { photos ->
                     val badPhotos = arrayListOf<String>()
                     val size = imagesInfo.imageNewName.size
-                    var isNotEnoughtSpace = false
+                    var isNotEnoughSpace = false
 
                     try {
                         for (index in 0 until size) {
@@ -82,14 +91,13 @@ class ImageController {
                             }
 
                             val extension = StringUtils.extractExtension(imageOrigName)
-                            val fullPath = currentFolderDirPath + imageNewName + "_o" + '.' + extension
+                            val fullPath = currentFolderDirPath + imageNewName + '.' + extension
                             val file = File(fullPath)
 
                             log.e("freeSpace = ${file.freeSpace}, totalSpace = ${file.totalSpace}, usableSpace = ${file.usableSpace}")
-                            val onePercent = file.totalSpace / 100
 
-                            if (file.freeSpace < onePercent) {
-                                isNotEnoughtSpace = true
+                            if (!diskSpaceService.isEnoughDiskSpace()) {
+                                isNotEnoughSpace = true
                                 break
                             }
 
@@ -116,12 +124,13 @@ class ImageController {
                                 }
 
                             } catch (e: IOException) {
+                                log.e(e)
+
                                 if (file.exists()) {
                                     file.delete()
                                 }
 
                                 badPhotos.add(imageMultipartFile.originalFilename)
-                                log.e(e)
                             }
                         }
 
@@ -131,7 +140,7 @@ class ImageController {
                                 FileServerErrorCode.UNKNOWN_ERROR.value, emptyList())))
                     }
 
-                    if (isNotEnoughtSpace) {
+                    if (isNotEnoughSpace) {
                         return@flatMap Single.just(ResponseEntity.ok(FileserverAnswer(
                                 FileServerErrorCode.NOT_ENOUGH_DISK_SPACE.value, emptyList())))
                     }
