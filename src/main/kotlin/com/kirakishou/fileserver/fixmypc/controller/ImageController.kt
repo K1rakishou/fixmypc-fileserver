@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile
 import java.awt.Dimension
 import java.io.File
 import java.io.IOException
+import java.security.SecureRandom
 import javax.annotation.PostConstruct
 
 @Controller
@@ -41,6 +42,8 @@ class ImageController {
 
         return@lazy map
     }
+
+    val random = SecureRandom()
 
     @PostConstruct
     fun init() {
@@ -66,12 +69,20 @@ class ImageController {
                     val size = imagesInfo.imageNewName.size
                     var isNotEnoughSpace = false
 
+                    log.d("Files count = $size")
+
                     try {
                         for (index in 0 until size) {
                             val imageNewName = imagesInfo.imageNewName[index]
                             val imageOrigName = imagesInfo.imageOrigName[index]
                             val imageType = imagesInfo.imageType[index]
                             val ownerId = imagesInfo.ownerId[index]
+
+                            if (Math.abs(random.nextInt()) % 2 == 0) {
+                                log.e("Triggering a error")
+                                badPhotos.add(imageOrigName)
+                                continue
+                            }
 
                             val imageMultipartFile = photos.firstOrNull {
                                 it.originalFilename == imageOrigName
@@ -91,10 +102,13 @@ class ImageController {
                             val fullPath = currentFolderDirPath + imageNewName + '.' + extension
                             val file = File(fullPath)
 
-                            if (!diskSpaceService.isEnoughDiskSpace()) {
+                            //FIXME
+                            /*if (!diskSpaceService.isEnoughDiskSpace()) {
                                 isNotEnoughSpace = true
                                 break
-                            }
+                            }*/
+
+                            log.d("Saving a file ${imageMultipartFile.originalFilename}")
 
                             if (file.exists()) {
                                 file.delete()
@@ -143,10 +157,10 @@ class ImageController {
                     if (badPhotos.isNotEmpty()) {
                         return@flatMap Single.just(ResponseEntity.ok(FileserverAnswer(
                                 FileServerErrorCode.COULD_NOT_STORE_ONE_OR_MORE_IMAGE.value, badPhotos)))
-                    } else {
-                        return@flatMap Single.just(ResponseEntity.ok(FileserverAnswer(
-                                FileServerErrorCode.OK.value, emptyList())))
                     }
+
+                    return@flatMap Single.just(ResponseEntity.ok(FileserverAnswer(
+                            FileServerErrorCode.OK.value, emptyList())))
                 }
     }
 }
