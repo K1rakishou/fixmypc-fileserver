@@ -15,7 +15,7 @@ class DiskSpaceServiceImpl : DiskSpaceService {
     override fun init(imgBasePath: String, checkTimeInterval: Long) {
         this.imageBasePath = File(imgBasePath)
         this.diskSpaceOnePercent = imageBasePath.totalSpace / 100
-        this.checkTimeInterval = TimeUnit.SECONDS.toMillis(checkTimeInterval)
+        this.checkTimeInterval = TimeUnit.MINUTES.toMillis(checkTimeInterval)
     }
 
     @Synchronized
@@ -26,6 +26,6 @@ class DiskSpaceServiceImpl : DiskSpaceService {
             diskFreeSpace = imageBasePath.freeSpace
         }
 
-        return diskSpaceOnePercent > diskFreeSpace
+        return diskSpaceOnePercent < diskFreeSpace
     }
 }

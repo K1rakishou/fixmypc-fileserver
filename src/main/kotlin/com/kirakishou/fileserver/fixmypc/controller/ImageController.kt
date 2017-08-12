@@ -94,8 +94,6 @@ class ImageController {
                             val fullPath = currentFolderDirPath + imageNewName + '.' + extension
                             val file = File(fullPath)
 
-                            log.e("freeSpace = ${file.freeSpace}, totalSpace = ${file.totalSpace}, usableSpace = ${file.usableSpace}")
-
                             if (!diskSpaceService.isEnoughDiskSpace()) {
                                 isNotEnoughSpace = true
                                 break
