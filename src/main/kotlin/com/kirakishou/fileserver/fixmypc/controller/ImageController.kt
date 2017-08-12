@@ -29,9 +29,6 @@ class ImageController {
     @Value("\${server.images.path}")
     lateinit var imagesBasePath: String
 
-    @Value("\${server.disk-space-service.check-time-interval}")
-    var checkTimeInterval: Long = 0
-
     @Autowired
     lateinit var log: FileLog
 
@@ -56,7 +53,7 @@ class ImageController {
             }
         }
 
-        diskSpaceService.init(imagesBasePath, checkTimeInterval)
+        diskSpaceService.init(imagesBasePath)
     }
 
     @RequestMapping(path = arrayOf("/v1/api/upload_image"), method = arrayOf(RequestMethod.POST))
@@ -108,13 +105,13 @@ class ImageController {
                                 imageMultipartFile.transferTo(file)
 
                                 //save large version of the image
-                                ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(2560, 2560), "_l", currentFolderDirPath, imageNewName, extension)
+                                diskSpaceService -= ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(2560, 2560), "_l", currentFolderDirPath, imageNewName, extension)
 
                                 //save medium version of the image
-                                ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(1536, 1536), "_m", currentFolderDirPath, imageNewName, extension)
+                                diskSpaceService -= ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(1536, 1536), "_m", currentFolderDirPath, imageNewName, extension)
 
                                 //save small version of the image
-                                ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(512, 512), "_s", currentFolderDirPath, imageNewName, extension)
+                                diskSpaceService -= ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(512, 512), "_s", currentFolderDirPath, imageNewName, extension)
 
                                 //remove original image
                                 if (file.exists()) {

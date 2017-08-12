@@ -9,7 +9,7 @@ import javax.imageio.ImageIO
 object ImageUtils {
 
     @Throws(IOException::class)
-    fun resizeAndSaveImageOnDisk(file: File, newMaxSize: Dimension, sizeType: String, currentFolderDirPath: String, imageNewName: String, extension: String) {
+    fun resizeAndSaveImageOnDisk(file: File, newMaxSize: Dimension, sizeType: String, currentFolderDirPath: String, imageNewName: String, extension: String): Long {
         val imageToResize = ImageIO.read(file)
         val outputResizedFile = File(currentFolderDirPath + imageNewName + sizeType + '.' + extension)
 
@@ -25,5 +25,7 @@ object ImageUtils {
         } else {
             file.copyTo(outputResizedFile)
         }
+
+        return outputResizedFile.length()
     }
 }
