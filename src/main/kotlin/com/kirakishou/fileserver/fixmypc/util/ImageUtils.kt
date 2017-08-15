@@ -9,11 +9,11 @@ import javax.imageio.ImageIO
 object ImageUtils {
 
     @Throws(IOException::class)
-    fun resizeAndSaveImageOnDisk(file: File, newMaxSize: Dimension, sizeType: String, currentFolderDirPath: String, imageNewName: String, extension: String): Long {
+    fun resizeAndSaveImageOnDisk(file: File, newMaxSize: Dimension, sizeType: String, currentFolderDirPath: String, imageNewName: String, extension: String) {
         val imageToResize = ImageIO.read(file)
         val outputResizedFile = File(currentFolderDirPath + imageNewName + sizeType + '.' + extension)
 
-        //original image size should be more than new size, otherwise we don't need to resize image, just copy it
+        //original image size should be bigger than the new size, otherwise we don't need to resize image, just copy it
         if (imageToResize.width > newMaxSize.width || imageToResize.height > newMaxSize.height) {
             val resizedImage = Thumbnails.of(imageToResize)
                     .useExifOrientation(true)
@@ -25,7 +25,5 @@ object ImageUtils {
         } else {
             file.copyTo(outputResizedFile)
         }
-
-        return outputResizedFile.length()
     }
 }
