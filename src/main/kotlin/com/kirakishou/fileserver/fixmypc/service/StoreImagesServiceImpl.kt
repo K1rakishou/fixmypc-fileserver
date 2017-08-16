@@ -12,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile
 import java.awt.Dimension
 import java.io.File
 import java.io.IOException
-import java.security.SecureRandom
 import javax.annotation.PostConstruct
 
 @Component
@@ -31,8 +30,6 @@ class StoreImagesServiceImpl : StoreImagesService {
         return@lazy map
     }
 
-    val random = SecureRandom()
-
     @PostConstruct
     fun init() {
         for (imageType in Constant.ImageType.values()) {
@@ -46,7 +43,7 @@ class StoreImagesServiceImpl : StoreImagesService {
     override fun save(images: List<MultipartFile>, imagesInfo: ForwardedImageInfo): StoreImagesService.Result {
         val badPhotos = arrayListOf<String>()
         val size = imagesInfo.imageNewName.size
-        
+
         log.d("Files count = $size")
 
         try {
@@ -58,13 +55,9 @@ class StoreImagesServiceImpl : StoreImagesService {
 
                 val imageMultipartFile = images.firstOrNull {
                     it.originalFilename == imageOrigName
-                }
+                } ?: throw IllegalArgumentException("Couldn't find image with name $imageOrigName")
 
-                if (imageMultipartFile == null) {
-                    throw IllegalArgumentException("Couldn't find image with name $imageOrigName")
-                }
-
-                val currentFolderDirPath = imagesBasePath + imageFolderByType[imageType] + '\\' + ownerId.toString() + '\\'
+                val currentFolderDirPath = imageFolderByType[imageType] + '\\' + ownerId.toString() + '\\'
                 val folderDir = File(currentFolderDirPath)
                 if (!folderDir.exists()) {
                     folderDir.mkdir()
