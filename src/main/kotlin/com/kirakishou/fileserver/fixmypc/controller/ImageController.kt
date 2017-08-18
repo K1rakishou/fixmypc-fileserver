@@ -1,9 +1,9 @@
 package com.kirakishou.fileserver.fixmypc.controller
 
 import com.kirakishou.fileserver.fixmypc.log.FileLog
+import com.kirakishou.fileserver.fixmypc.model.DistributedImage
 import com.kirakishou.fileserver.fixmypc.model.FileServerAnswer
 import com.kirakishou.fileserver.fixmypc.model.FileServerErrorCode
-import com.kirakishou.fileserver.fixmypc.model.ForwardedImageInfo
 import com.kirakishou.fileserver.fixmypc.service.StoreImagesService
 import io.reactivex.Single
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,11 +26,11 @@ class ImageController {
 
     @RequestMapping(path = arrayOf("/v1/api/upload_image"), method = arrayOf(RequestMethod.POST))
     fun receiveImages(@RequestPart("images") uploadingFiles: List<MultipartFile>,
-                      @RequestPart("images_info") imagesInfo: ForwardedImageInfo): Single<ResponseEntity<FileServerAnswer>> {
+                      @RequestPart("images_info") distributedImage: DistributedImage): Single<ResponseEntity<FileServerAnswer>> {
 
         return Single.just(uploadingFiles)
                 .map { images ->
-                    val result = storeImagesService.save(images, imagesInfo)
+                    val result = storeImagesService.save(images, distributedImage)
 
                     when (result) {
                         is StoreImagesService.Result.Ok -> {

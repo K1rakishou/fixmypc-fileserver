@@ -1,6 +1,6 @@
 package com.kirakishou.fileserver.fixmypc.service
 
-import com.kirakishou.fileserver.fixmypc.model.ForwardedImageInfo
+import com.kirakishou.fileserver.fixmypc.model.DistributedImage
 import org.springframework.web.multipart.MultipartFile
 
 interface StoreImagesService {
@@ -11,5 +11,5 @@ interface StoreImagesService {
         class CouldNotStoreOneOrMoreImages(val badPhotos: List<String>): Result
     }
 
-    fun save(images: List<MultipartFile>, imagesInfo: ForwardedImageInfo): Result
+    fun save(images: List<MultipartFile>, distributedImage: DistributedImage): Result
 }
