@@ -12,10 +12,11 @@ import org.springframework.web.multipart.MultipartFile
 import java.awt.Dimension
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.PostConstruct
 
 @Component
-class StoreImagesServiceImpl : StoreImagesService {
+class SaveImagesServiceImpl : SaveImagesService {
 
     @Value("\${server.images.path}")
     lateinit var imagesBasePath: String
@@ -24,8 +25,8 @@ class StoreImagesServiceImpl : StoreImagesService {
     lateinit var log: FileLog
 
     val imageFolderByType: Map<Int, String> by lazy {
-        val map = HashMap<Int, String>()
-        map.put(Constant.ImageType.IMAGE_TYPE_MALFUNCTION_PHOTO.value, "${imagesBasePath}\\malfunction_photos\\")
+        val map = ConcurrentHashMap<Int, String>()
+        map.put(Constant.ImageType.IMAGE_TYPE_MALFUNCTION_PHOTO.value, "${imagesBasePath}\\malfunction_photos")
 
         return@lazy map
     }
@@ -40,7 +41,7 @@ class StoreImagesServiceImpl : StoreImagesService {
         }
     }
 
-    override fun save(images: List<MultipartFile>, distributedImage: DistributedImage): StoreImagesService.Result {
+    override fun save(images: List<MultipartFile>, distributedImage: DistributedImage): SaveImagesService.Result {
         val badPhotos = arrayListOf<String>()
 
         try {
@@ -48,21 +49,23 @@ class StoreImagesServiceImpl : StoreImagesService {
             val imageOrigName = distributedImage.imageOrigName
             val imageType = distributedImage.imageType
             val ownerId = distributedImage.ownerId
+            val malfunctionRequestId = distributedImage.malfunctionRequestId
 
             val imageMultipartFile = images.firstOrNull {
                 it.originalFilename == imageOrigName
             } ?: throw IllegalArgumentException("Couldn't find image with name $imageOrigName")
 
-            val currentFolderDirPath = imageFolderByType[imageType] + '\\' + ownerId.toString() + '\\'
-            val folderDir = File(currentFolderDirPath)
-            if (!folderDir.exists()) {
-                folderDir.mkdir()
+            val fullPathToDir = "${imageFolderByType[imageType]}\\$ownerId\\$malfunctionRequestId\\"
+            val dirFile = File(fullPathToDir)
+            if (!dirFile.exists()) {
+                dirFile.mkdirs()
             }
 
             val extension = StringUtils.extractExtension(imageOrigName)
-            val fullPath = currentFolderDirPath + imageNewName + '.' + extension
+            val fullPath = fullPathToDir + imageNewName + '.' + extension
             val file = File(fullPath)
 
+            log.d("fullPath = $fullPath")
             log.d("Saving a file ${imageMultipartFile.originalFilename}")
 
             //delete old image if it exists
@@ -75,13 +78,13 @@ class StoreImagesServiceImpl : StoreImagesService {
                 imageMultipartFile.transferTo(file)
 
                 //save large version of the image
-                ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(2560, 2560), "_l", currentFolderDirPath, imageNewName, extension)
+                ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(2560, 2560), "_l", fullPathToDir, imageNewName, extension)
 
                 //save medium version of the image
-                ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(1536, 1536), "_m", currentFolderDirPath, imageNewName, extension)
+                ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(1536, 1536), "_m", fullPathToDir, imageNewName, extension)
 
                 //save small version of the image
-                ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(512, 512), "_s", currentFolderDirPath, imageNewName, extension)
+                ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(512, 512), "_s", fullPathToDir, imageNewName, extension)
 
                 //remove original image
                 if (file.exists()) {
@@ -100,13 +103,13 @@ class StoreImagesServiceImpl : StoreImagesService {
 
         } catch (e: Exception) {
             log.e(e)
-            return StoreImagesService.Result.UnknownError()
+            return SaveImagesService.Result.UnknownError()
         }
 
         if (badPhotos.isNotEmpty()) {
-            return StoreImagesService.Result.CouldNotStoreOneOrMoreImages(badPhotos)
+            return SaveImagesService.Result.CouldNotStoreOneOrMoreImages(badPhotos)
         }
 
-        return StoreImagesService.Result.Ok()
+        return SaveImagesService.Result.Ok()
     }
 }

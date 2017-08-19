@@ -3,7 +3,7 @@ package com.kirakishou.fileserver.fixmypc.service
 import com.kirakishou.fileserver.fixmypc.model.DistributedImage
 import org.springframework.web.multipart.MultipartFile
 
-interface StoreImagesService {
+interface SaveImagesService {
 
     interface Result {
         class Ok: Result

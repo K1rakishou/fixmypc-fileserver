@@ -1,5 +1,6 @@
 package com.kirakishou.fileserver.fixmypc.log
 
+import com.kirakishou.fileserver.fixmypc.util.ServerUtils
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -12,13 +13,11 @@ import java.util.concurrent.Semaphore
 import java.util.concurrent.atomic.AtomicBoolean
 
 class FileLog {
-    val MSECS_IN_MINUTE = (1000 * 60).toLong()
-    val MSECS_IN_HOUR = MSECS_IN_MINUTE * 60
-    val MSECS_IN_DAY = MSECS_IN_HOUR * 24
-    val defaultFormat: String = "yyyy-MM-dd HH:mm:ss"
-    val LOG_DUMP_TIME: Long = MSECS_IN_MINUTE * 10
-
-    private val sdf2 = SimpleDateFormat("dd:MM:yyyy HH:mm:ss")
+    private val MSECS_IN_MINUTE = (1000 * 60).toLong()
+    private val MSECS_IN_HOUR = MSECS_IN_MINUTE * 60
+    private val MSECS_IN_DAY = MSECS_IN_HOUR * 24
+    private val defaultFormat: String = "yyyy-MM-dd HH:mm:ss"
+    private val LOG_DUMP_TIME: Long = MSECS_IN_MINUTE * 10
     private val logQueue = LinkedBlockingQueue<String>()
     private val semaphore = Semaphore(0)
 
@@ -151,7 +150,8 @@ class FileLog {
     }
 
     fun e(message: String) {
-        val str = "[" + sdf2.format(Date().time) + "] " + message + "\n"
+        val sdf2 = SimpleDateFormat("dd:MM:yyyy HH:mm:ss")
+        val str = "[" + sdf2.format(ServerUtils.getTimeFast()) + "] " + message + "\n"
 
         synchronized(logQueue) {
             logQueue.add(str)
@@ -167,7 +167,8 @@ class FileLog {
     }
 
     fun e(exception: Throwable) {
-        val str = StringBuilder("[" + sdf2.format(Date().time) + "] " + exception + "\n")
+        val sdf2 = SimpleDateFormat("dd:MM:yyyy HH:mm:ss")
+        val str = StringBuilder("[" + sdf2.format(ServerUtils.getTimeFast()) + "] " + exception + "\n")
         val ste = exception.stackTrace
         for (e in ste) {
             str.append(e.toString())
@@ -189,7 +190,8 @@ class FileLog {
     }
 
     fun d(message: String) {
-        val str = "[" + sdf2.format(Date().time) + "] " + message + "\n"
+        val sdf2 = SimpleDateFormat("dd:MM:yyyy HH:mm:ss")
+        val str = "[" + sdf2.format(ServerUtils.getTimeFast()) + "] " + message + "\n"
 
         synchronized(logQueue) {
             logQueue.add(str)
@@ -205,7 +207,8 @@ class FileLog {
     }
 
     fun w(message: String) {
-        val str = "[" + sdf2.format(Date().time) + "] " + message + "\n"
+        val sdf2 = SimpleDateFormat("dd:MM:yyyy HH:mm:ss")
+        val str = "[" + sdf2.format(ServerUtils.getTimeFast()) + "] " + message + "\n"
 
         synchronized(logQueue) {
             logQueue.add(str)

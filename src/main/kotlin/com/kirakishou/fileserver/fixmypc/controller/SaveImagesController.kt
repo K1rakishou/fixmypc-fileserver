@@ -1,10 +1,9 @@
 package com.kirakishou.fileserver.fixmypc.controller
 
-import com.kirakishou.fileserver.fixmypc.log.FileLog
 import com.kirakishou.fileserver.fixmypc.model.DistributedImage
 import com.kirakishou.fileserver.fixmypc.model.FileServerAnswer
 import com.kirakishou.fileserver.fixmypc.model.FileServerErrorCode
-import com.kirakishou.fileserver.fixmypc.service.StoreImagesService
+import com.kirakishou.fileserver.fixmypc.service.SaveImagesService
 import io.reactivex.Single
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -16,32 +15,29 @@ import org.springframework.web.multipart.MultipartFile
 
 @Controller
 @RequestMapping
-class ImageController {
+class SaveImagesController {
 
     @Autowired
-    lateinit var log: FileLog
-
-    @Autowired
-    lateinit var storeImagesService: StoreImagesService
+    lateinit var saveImagesService: SaveImagesService
 
     @RequestMapping(path = arrayOf("/v1/api/upload_image"), method = arrayOf(RequestMethod.POST))
-    fun receiveImages(@RequestPart("images") uploadingFiles: List<MultipartFile>,
-                      @RequestPart("images_info") distributedImage: DistributedImage): Single<ResponseEntity<FileServerAnswer>> {
+    fun saveImages(@RequestPart("images") uploadingFiles: List<MultipartFile>,
+                   @RequestPart("images_info") distributedImage: DistributedImage): Single<ResponseEntity<FileServerAnswer>> {
 
         return Single.just(uploadingFiles)
                 .map { images ->
-                    val result = storeImagesService.save(images, distributedImage)
+                    val result = saveImagesService.save(images, distributedImage)
 
                     when (result) {
-                        is StoreImagesService.Result.Ok -> {
+                        is SaveImagesService.Result.Ok -> {
                             return@map ResponseEntity.ok(FileServerAnswer(FileServerErrorCode.OK.value, emptyList()))
                         }
 
-                        is StoreImagesService.Result.CouldNotStoreOneOrMoreImages -> {
+                        is SaveImagesService.Result.CouldNotStoreOneOrMoreImages -> {
                             return@map ResponseEntity.ok(FileServerAnswer(FileServerErrorCode.COULD_NOT_STORE_ONE_OR_MORE_IMAGE.value, result.badPhotos))
                         }
 
-                        is StoreImagesService.Result.UnknownError -> {
+                        is SaveImagesService.Result.UnknownError -> {
                             return@map ResponseEntity.ok(FileServerAnswer(FileServerErrorCode.UNKNOWN_ERROR.value, emptyList()))
                         }
 
