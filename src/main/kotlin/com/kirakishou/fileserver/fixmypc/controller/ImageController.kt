@@ -4,23 +4,39 @@ import com.kirakishou.fileserver.fixmypc.model.DistributedImage
 import com.kirakishou.fileserver.fixmypc.model.FileServerAnswer
 import com.kirakishou.fileserver.fixmypc.model.FileServerErrorCode
 import com.kirakishou.fileserver.fixmypc.service.SaveImagesService
+import com.kirakishou.fileserver.fixmypc.util.ServerUtils
 import io.reactivex.Single
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.multipart.MultipartFile
+import java.io.File
+import javax.annotation.PostConstruct
 
 @Controller
 @RequestMapping
-class SaveImagesController {
+class ImageController {
+
+    @Value("\${server.images.path}")
+    lateinit var imagesBasePath: String
 
     @Autowired
     lateinit var saveImagesService: SaveImagesService
 
-    @RequestMapping(path = arrayOf("/v1/api/upload_image"), method = arrayOf(RequestMethod.POST))
+    lateinit var malfunctionImagesDir: String
+
+    @PostConstruct
+    fun init() {
+        malfunctionImagesDir = "$imagesBasePath\\malfunction_images"
+    }
+
+    @RequestMapping(path = arrayOf("/v1/api/malfunction_image"), method = arrayOf(RequestMethod.POST))
     fun saveImages(@RequestPart("images") uploadingFiles: List<MultipartFile>,
                    @RequestPart("images_info") distributedImage: DistributedImage): Single<ResponseEntity<FileServerAnswer>> {
 
@@ -43,6 +59,25 @@ class SaveImagesController {
 
                         else -> throw IllegalArgumentException("Unknown result")
                     }
+                }
+    }
+
+    @RequestMapping(path = arrayOf("/v1/api/malfunction_image/{owner_id}/{malfunction_request_id}"), method = arrayOf(RequestMethod.DELETE))
+    fun deleteImages(@PathVariable("owner_id") ownerId: Long,
+                    @PathVariable("m_request_id") malfunctionRequestId: String): Single<ResponseEntity<Int>> {
+
+        return Single.just(ownerId)
+                .map { id ->
+                    val fullPath = "$malfunctionImagesDir\\$id\\$malfunctionRequestId"
+                    val dirFile = File(fullPath)
+
+                    if (!dirFile.exists()) {
+                        return@map ResponseEntity(FileServerErrorCode.FILE_NOT_FOUND.value, HttpStatus.NOT_FOUND)
+                    }
+
+                    ServerUtils.deleteFolder(dirFile)
+
+                    return@map ResponseEntity(FileServerErrorCode.OK.value, HttpStatus.OK)
                 }
     }
 }

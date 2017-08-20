@@ -13,7 +13,7 @@ object Constant {
         const val IMAGE_TYPE = "image_type"
         const val IMAGE_NAME = "image_name"
         const val OWNER_ID = "owner_id"
-        const val MALFUNCTION_REQUEST_ID = "malfunction_request_id"
+        const val MALFUNCTION_REQUEST_ID = "m_request_id"
     }
 
 }

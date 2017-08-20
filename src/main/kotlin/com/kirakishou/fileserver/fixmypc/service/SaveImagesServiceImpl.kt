@@ -26,7 +26,7 @@ class SaveImagesServiceImpl : SaveImagesService {
 
     val imageFolderByType: Map<Int, String> by lazy {
         val map = ConcurrentHashMap<Int, String>()
-        map.put(Constant.ImageType.IMAGE_TYPE_MALFUNCTION_PHOTO.value, "${imagesBasePath}\\malfunction_photos")
+        map.put(Constant.ImageType.IMAGE_TYPE_MALFUNCTION_PHOTO.value, "${imagesBasePath}\\malfunction_images")
 
         return@lazy map
     }
@@ -36,7 +36,7 @@ class SaveImagesServiceImpl : SaveImagesService {
         for (imageType in Constant.ImageType.values()) {
             val file = File(imageFolderByType[imageType.value])
             if (!file.exists()) {
-                file.mkdir()
+                file.mkdirs()
             }
         }
     }
