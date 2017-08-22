@@ -1,6 +1,6 @@
 package com.kirakishou.fileserver.fixmypc.service
 
-import com.kirakishou.fileserver.fixmypc.controller.ImageController
+import com.kirakishou.fileserver.fixmypc.model.ServableImageInfo
 import java.io.InputStream
 
 interface ServeImageService {
@@ -11,5 +11,5 @@ interface ServeImageService {
         class NotModified : Result
     }
 
-    fun serveImage(servableImageInfo: ImageController.ServableImageInfo): Result
+    fun serveImage(servableImageInfo: ServableImageInfo): Result
 }

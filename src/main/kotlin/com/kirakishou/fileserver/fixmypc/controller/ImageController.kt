@@ -3,6 +3,7 @@ package com.kirakishou.fileserver.fixmypc.controller
 import com.kirakishou.fileserver.fixmypc.model.DistributedImage
 import com.kirakishou.fileserver.fixmypc.model.FileServerAnswer
 import com.kirakishou.fileserver.fixmypc.model.FileServerErrorCode
+import com.kirakishou.fileserver.fixmypc.model.ServableImageInfo
 import com.kirakishou.fileserver.fixmypc.service.DeleteImagesService
 import com.kirakishou.fileserver.fixmypc.service.SaveImageService
 import com.kirakishou.fileserver.fixmypc.service.ServeImageService
@@ -117,12 +118,6 @@ class ImageController {
                 }
 
     }
-
-    data class ServableImageInfo(val imageType: Int,
-                                 val ownerId: Long,
-                                 val folderName: String,
-                                 val imageName: String,
-                                 val isModifiedSince: Long)
 }
 
 

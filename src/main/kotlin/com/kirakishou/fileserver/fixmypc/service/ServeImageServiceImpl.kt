@@ -1,8 +1,8 @@
 package com.kirakishou.fileserver.fixmypc.service
 
-import com.kirakishou.fileserver.fixmypc.controller.ImageController
 import com.kirakishou.fileserver.fixmypc.log.FileLog
 import com.kirakishou.fileserver.fixmypc.model.Constant
+import com.kirakishou.fileserver.fixmypc.model.ServableImageInfo
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -37,7 +37,7 @@ class ServeImageServiceImpl : ServeImageService {
     }
 
 
-    override fun serveImage(servableImageInfo: ImageController.ServableImageInfo): ServeImageService.Result {
+    override fun serveImage(servableImageInfo: ServableImageInfo): ServeImageService.Result {
         val imageType = servableImageInfo.imageType
         val imageName = servableImageInfo.imageName
         val ownerId = servableImageInfo.ownerId
