@@ -43,15 +43,15 @@ class ImageController {
                     val result = saveImageService.save(image, distributedImage)
 
                     when (result) {
-                        is SaveImageService.Result.Ok -> {
+                        is SaveImageService.Post.Result.Ok -> {
                             return@map ResponseEntity.ok(FileServerAnswer(FileServerErrorCode.OK.value, emptyList()))
                         }
 
-                        is SaveImageService.Result.CouldNotStoreOneOrMoreImages -> {
+                        is SaveImageService.Post.Result.CouldNotStoreOneOrMoreImages -> {
                             return@map ResponseEntity.ok(FileServerAnswer(FileServerErrorCode.COULD_NOT_STORE_IMAGE.value, result.badPhotos))
                         }
 
-                        is SaveImageService.Result.UnknownError -> {
+                        is SaveImageService.Post.Result.UnknownError -> {
                             return@map ResponseEntity.ok(FileServerAnswer(FileServerErrorCode.UNKNOWN_ERROR.value, emptyList()))
                         }
 
@@ -69,11 +69,11 @@ class ImageController {
                     val result = deleteImagesService.deleteImages(id, malfunctionRequestId)
 
                     when (result) {
-                        is DeleteImagesService.Result.Ok -> {
+                        is DeleteImagesService.Delete.Result.Ok -> {
                             return@map ResponseEntity(FileServerErrorCode.OK.value, HttpStatus.OK)
                         }
 
-                        is DeleteImagesService.Result.NotFound -> {
+                        is DeleteImagesService.Delete.Result.NotFound -> {
                             return@map ResponseEntity(FileServerErrorCode.FILE_NOT_FOUND.value, HttpStatus.NOT_FOUND)
                         }
 
@@ -96,7 +96,7 @@ class ImageController {
                     val result = serveImageService.serveImage(sii)
 
                     when (result) {
-                        is ServeImageService.Result.Ok -> {
+                        is ServeImageService.Get.Result.Ok -> {
                             return@map ResponseEntity
                                     .status(HttpStatus.OK)
                                     .contentType(MediaType.IMAGE_PNG)
@@ -105,11 +105,11 @@ class ImageController {
                                     .body<Resource>(InputStreamResource(result.inputStream))
                         }
 
-                        is ServeImageService.Result.NotModified -> {
+                        is ServeImageService.Get.Result.NotModified -> {
                             return@map ResponseEntity<Resource>(null, HttpStatus.NOT_MODIFIED)
                         }
 
-                        is ServeImageService.Result.NotFound -> {
+                        is ServeImageService.Get.Result.NotFound -> {
                             return@map ResponseEntity<Resource>(null, HttpStatus.NOT_FOUND)
                         }
 

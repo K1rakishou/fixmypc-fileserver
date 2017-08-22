@@ -5,11 +5,13 @@ import java.io.InputStream
 
 interface ServeImageService {
 
-    interface Result {
-        class Ok(val lastModified: Long, val inputStream: InputStream) : Result
-        class NotFound : Result
-        class NotModified : Result
+    interface Get {
+        interface Result {
+            class Ok(val lastModified: Long, val inputStream: InputStream) : Result
+            class NotFound : Result
+            class NotModified : Result
+        }
     }
 
-    fun serveImage(servableImageInfo: ServableImageInfo): Result
+    fun serveImage(servableImageInfo: ServableImageInfo): Get.Result
 }

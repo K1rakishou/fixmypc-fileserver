@@ -19,16 +19,16 @@ class DeleteImagesServiceImpl : DeleteImagesService {
         malfunctionImagesDir = "$imagesBasePath\\malfunction_images"
     }
 
-    override fun deleteImages(ownerId: Long, malfunctionRequestId: String): DeleteImagesService.Result {
+    override fun deleteImages(ownerId: Long, malfunctionRequestId: String): DeleteImagesService.Delete.Result {
         val fullPath = "$malfunctionImagesDir\\$ownerId\\$malfunctionRequestId"
         val dirFile = File(fullPath)
 
         if (!dirFile.exists()) {
-            return DeleteImagesService.Result.NotFound()
+            return DeleteImagesService.Delete.Result.NotFound()
         }
 
         ServerUtils.deleteFolder(dirFile)
 
-        return DeleteImagesService.Result.Ok()
+        return DeleteImagesService.Delete.Result.Ok()
     }
 }

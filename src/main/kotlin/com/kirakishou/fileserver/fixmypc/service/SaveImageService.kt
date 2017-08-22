@@ -5,11 +5,13 @@ import org.springframework.web.multipart.MultipartFile
 
 interface SaveImageService {
 
-    interface Result {
-        class Ok: Result
-        class UnknownError: Result
-        class CouldNotStoreOneOrMoreImages(val badPhotos: List<String>): Result
+    interface Post {
+        interface Result {
+            class Ok : Result
+            class UnknownError : Result
+            class CouldNotStoreOneOrMoreImages(val badPhotos: List<String>) : Result
+        }
     }
 
-    fun save(image: MultipartFile, distributedImage: DistributedImage): Result
+    fun save(image: MultipartFile, distributedImage: DistributedImage): Post.Result
 }

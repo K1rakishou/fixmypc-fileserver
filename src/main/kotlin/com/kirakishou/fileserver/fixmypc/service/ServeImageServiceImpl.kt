@@ -37,7 +37,7 @@ class ServeImageServiceImpl : ServeImageService {
     }
 
 
-    override fun serveImage(servableImageInfo: ServableImageInfo): ServeImageService.Result {
+    override fun serveImage(servableImageInfo: ServableImageInfo): ServeImageService.Get.Result {
         val imageType = servableImageInfo.imageType
         val imageName = servableImageInfo.imageName
         val ownerId = servableImageInfo.ownerId
@@ -48,14 +48,14 @@ class ServeImageServiceImpl : ServeImageService {
         val file = File(fullPathToImage)
 
         if (file.lastModified() < isModifiedSince) {
-            return ServeImageService.Result.NotModified()
+            return ServeImageService.Get.Result.NotModified()
         }
 
         if (!file.exists() || !file.isFile) {
-            return ServeImageService.Result.NotFound()
+            return ServeImageService.Get.Result.NotFound()
         }
 
-        return ServeImageService.Result.Ok(file.lastModified(), file.inputStream())
+        return ServeImageService.Get.Result.Ok(file.lastModified(), file.inputStream())
     }
 }
 

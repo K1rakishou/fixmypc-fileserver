@@ -41,7 +41,7 @@ class SaveImageServiceImpl : SaveImageService {
         }
     }
 
-    override fun save(image: MultipartFile, distributedImage: DistributedImage): SaveImageService.Result {
+    override fun save(image: MultipartFile, distributedImage: DistributedImage): SaveImageService.Post.Result {
         val badPhotos = arrayListOf<String>()
 
         try {
@@ -99,13 +99,13 @@ class SaveImageServiceImpl : SaveImageService {
 
         } catch (e: Exception) {
             log.e(e)
-            return SaveImageService.Result.UnknownError()
+            return SaveImageService.Post.Result.UnknownError()
         }
 
         if (badPhotos.isNotEmpty()) {
-            return SaveImageService.Result.CouldNotStoreOneOrMoreImages(badPhotos)
+            return SaveImageService.Post.Result.CouldNotStoreOneOrMoreImages(badPhotos)
         }
 
-        return SaveImageService.Result.Ok()
+        return SaveImageService.Post.Result.Ok()
     }
 }
