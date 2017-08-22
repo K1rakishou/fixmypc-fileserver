@@ -10,9 +10,9 @@ import javax.annotation.PostConstruct
 class DeleteImagesServiceImpl : DeleteImagesService {
 
     @Value("\${server.images.path}")
-    lateinit var imagesBasePath: String
+    private lateinit var imagesBasePath: String
 
-    lateinit var malfunctionImagesDir: String
+    private lateinit var malfunctionImagesDir: String
 
     @PostConstruct
     fun init() {

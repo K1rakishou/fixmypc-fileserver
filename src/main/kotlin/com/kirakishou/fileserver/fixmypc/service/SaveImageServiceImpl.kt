@@ -16,13 +16,13 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.PostConstruct
 
 @Component
-class SaveImagesServiceImpl : SaveImagesService {
+class SaveImageServiceImpl : SaveImageService {
 
     @Value("\${server.images.path}")
-    lateinit var imagesBasePath: String
+    private lateinit var imagesBasePath: String
 
     @Autowired
-    lateinit var log: FileLog
+    private lateinit var log: FileLog
 
     val imageFolderByType: Map<Int, String> by lazy {
         val map = ConcurrentHashMap<Int, String>()
@@ -41,7 +41,7 @@ class SaveImagesServiceImpl : SaveImagesService {
         }
     }
 
-    override fun save(images: List<MultipartFile>, distributedImage: DistributedImage): SaveImagesService.Result {
+    override fun save(image: MultipartFile, distributedImage: DistributedImage): SaveImageService.Result {
         val badPhotos = arrayListOf<String>()
 
         try {
@@ -50,10 +50,6 @@ class SaveImagesServiceImpl : SaveImagesService {
             val imageType = distributedImage.imageType
             val ownerId = distributedImage.ownerId
             val malfunctionRequestId = distributedImage.malfunctionRequestId
-
-            val imageMultipartFile = images.firstOrNull {
-                it.originalFilename == imageOrigName
-            } ?: throw IllegalArgumentException("Couldn't find image with name $imageOrigName")
 
             val fullPathToDir = "${imageFolderByType[imageType]}\\$ownerId\\$malfunctionRequestId\\"
             val dirFile = File(fullPathToDir)
@@ -66,7 +62,7 @@ class SaveImagesServiceImpl : SaveImagesService {
             val file = File(fullPath)
 
             log.d("fullPath = $fullPath")
-            log.d("Saving a file ${imageMultipartFile.originalFilename}")
+            log.d("Saving a file ${image.originalFilename}")
 
             //delete old image if it exists
             if (file.exists()) {
@@ -75,7 +71,7 @@ class SaveImagesServiceImpl : SaveImagesService {
 
             try {
                 //copy original image
-                imageMultipartFile.transferTo(file)
+                image.transferTo(file)
 
                 //save large version of the image
                 ImageUtils.resizeAndSaveImageOnDisk(file, Dimension(2560, 2560), "_l", fullPathToDir, imageNewName, extension)
@@ -98,18 +94,18 @@ class SaveImagesServiceImpl : SaveImagesService {
                     file.delete()
                 }
 
-                badPhotos.add(imageMultipartFile.originalFilename)
+                badPhotos.add(image.originalFilename)
             }
 
         } catch (e: Exception) {
             log.e(e)
-            return SaveImagesService.Result.UnknownError()
+            return SaveImageService.Result.UnknownError()
         }
 
         if (badPhotos.isNotEmpty()) {
-            return SaveImagesService.Result.CouldNotStoreOneOrMoreImages(badPhotos)
+            return SaveImageService.Result.CouldNotStoreOneOrMoreImages(badPhotos)
         }
 
-        return SaveImagesService.Result.Ok()
+        return SaveImageService.Result.Ok()
     }
 }
