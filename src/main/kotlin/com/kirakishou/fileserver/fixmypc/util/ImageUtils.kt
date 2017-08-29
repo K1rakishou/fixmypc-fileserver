@@ -3,15 +3,18 @@ package com.kirakishou.fileserver.fixmypc.util
 import net.coobird.thumbnailator.Thumbnails
 import java.awt.Dimension
 import java.io.File
-import java.io.IOException
 import javax.imageio.ImageIO
 
 object ImageUtils {
 
-    @Throws(IOException::class)
+    @Throws(Exception::class)
     fun resizeAndSaveImageOnDisk(file: File, newMaxSize: Dimension, sizeType: String, currentFolderDirPath: String, imageNewName: String, extension: String) {
         val imageToResize = ImageIO.read(file)
         val outputResizedFile = File(currentFolderDirPath + imageNewName + sizeType + '.' + extension)
+
+        if (imageToResize == null) {
+            println("imageToResize is null!!!")
+        }
 
         //original image size should be bigger than the new size, otherwise we don't need to resize image, just copy it
         if (imageToResize.width > newMaxSize.width || imageToResize.height > newMaxSize.height) {

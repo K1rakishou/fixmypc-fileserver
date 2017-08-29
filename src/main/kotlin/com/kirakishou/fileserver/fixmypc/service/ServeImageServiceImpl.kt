@@ -36,7 +36,6 @@ class ServeImageServiceImpl : ServeImageService {
         }
     }
 
-
     override fun serveImage(servableImageInfo: ServableImageInfo): ServeImageService.Get.Result {
         val imageType = servableImageInfo.imageType
         val imageName = servableImageInfo.imageName

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
 import java.awt.Dimension
 import java.io.File
-import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.PostConstruct
 
@@ -87,7 +86,7 @@ class SaveImageServiceImpl : SaveImageService {
                     file.delete()
                 }
 
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 log.e(e)
 
                 if (file.exists()) {
