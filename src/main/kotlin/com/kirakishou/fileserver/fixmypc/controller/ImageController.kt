@@ -85,7 +85,7 @@ class ImageController {
     @RequestMapping(path = arrayOf("/v1/api/malfunction_image/{is_modified_since}/{image_type}/{owner_id}/{folder_name}/{image_name:.+}"),
             method = arrayOf(RequestMethod.GET),
             produces = arrayOf(MediaType.IMAGE_PNG_VALUE))
-    fun serverImage(@PathVariable("image_type") imageType: Int,
+    fun serveImage(@PathVariable("image_type") imageType: Int,
                     @PathVariable("owner_id") ownerId: Long,
                     @PathVariable("folder_name") folderName: String,
                     @PathVariable("image_name") imageName: String,
