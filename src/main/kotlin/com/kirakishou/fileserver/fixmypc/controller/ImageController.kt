@@ -34,7 +34,7 @@ class ImageController {
     @Autowired
     lateinit var serveImageService: ServeImageService
 
-    @RequestMapping(path = arrayOf("/v1/api/malfunction_image"), method = arrayOf(RequestMethod.POST))
+    @RequestMapping(path = arrayOf("/v1/api/damage_claim_photo"), method = arrayOf(RequestMethod.POST))
     fun saveImage(@RequestPart("image") uploadingFile: MultipartFile,
                   @RequestPart("image_info") distributedImage: DistributedImage): Single<ResponseEntity<FileServerAnswer>> {
 
@@ -60,7 +60,7 @@ class ImageController {
                 }
     }
 
-    @RequestMapping(path = arrayOf("/v1/api/malfunction_image/{owner_id}/{m_request_id}"), method = arrayOf(RequestMethod.DELETE))
+    @RequestMapping(path = arrayOf("/v1/api/damage_claim_photo/{owner_id}/{m_request_id}"), method = arrayOf(RequestMethod.DELETE))
     fun deleteImages(@PathVariable("owner_id") ownerId: Long,
                      @PathVariable("m_request_id") malfunctionRequestId: String): Single<ResponseEntity<Int>> {
 
@@ -82,7 +82,7 @@ class ImageController {
                 }
     }
 
-    @RequestMapping(path = arrayOf("/v1/api/malfunction_image/{is_modified_since}/{image_type}/{owner_id}/{folder_name}/{image_name:.+}"),
+    @RequestMapping(path = arrayOf("/v1/api/damage_claim_photo/{is_modified_since}/{image_type}/{owner_id}/{folder_name}/{image_name:.+}"),
             method = arrayOf(RequestMethod.GET),
             produces = arrayOf(MediaType.IMAGE_PNG_VALUE))
     fun serveImage(@PathVariable("image_type") imageType: Int,
