@@ -7,7 +7,7 @@ interface ServeImageService {
 
     interface Get {
         interface Result {
-            class Ok(val lastModified: Long, val inputStream: InputStream) : Result
+            class Ok(val inputStream: InputStream) : Result
             class NotFound : Result
             class NotModified : Result
         }

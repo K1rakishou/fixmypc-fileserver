@@ -3,6 +3,7 @@ package com.kirakishou.fileserver.fixmypc.service
 import com.kirakishou.fileserver.fixmypc.log.FileLog
 import com.kirakishou.fileserver.fixmypc.model.Constant
 import com.kirakishou.fileserver.fixmypc.model.ServableImageInfo
+import com.kirakishou.fileserver.fixmypc.util.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -41,20 +42,24 @@ class ServeImageServiceImpl : ServeImageService {
         val imageName = servableImageInfo.imageName
         val ownerId = servableImageInfo.ownerId
         val folderName = servableImageInfo.folderName
-        val isModifiedSince = servableImageInfo.isModifiedSince
+        val extension = StringUtils.extractExtension(imageName)
+        val imageNameWithoutExtension = imageName.substring(0, imageName.length - extension.length - 1)
 
-        val fullPathToImage = "${imageFolderByType[imageType]}\\$ownerId\\$folderName\\$imageName"
-        val file = File(fullPathToImage)
-
-        if (file.lastModified() < isModifiedSince) {
-            return ServeImageService.Get.Result.NotModified()
+        val size = when (servableImageInfo.size) {
+            "large" -> "l"
+            "medium" -> "m"
+            "small" -> "s"
+            else -> "m"
         }
+
+        val fullPathToImage = "${imageFolderByType[imageType]}\\$ownerId\\$folderName\\${imageNameWithoutExtension}_$size.$extension"
+        val file = File(fullPathToImage)
 
         if (!file.exists() || !file.isFile) {
             return ServeImageService.Get.Result.NotFound()
         }
 
-        return ServeImageService.Get.Result.Ok(file.lastModified(), file.inputStream())
+        return ServeImageService.Get.Result.Ok(file.inputStream())
     }
 }
 

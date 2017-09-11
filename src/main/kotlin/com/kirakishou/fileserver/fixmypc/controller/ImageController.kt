@@ -60,13 +60,13 @@ class ImageController {
                 }
     }
 
-    @RequestMapping(path = arrayOf("/v1/api/damage_claim_photo/{owner_id}/{m_request_id}"), method = arrayOf(RequestMethod.DELETE))
+    @RequestMapping(path = arrayOf("/v1/api/damage_claim_photo/{owner_id}/{folder_name}"), method = arrayOf(RequestMethod.DELETE))
     fun deleteImages(@PathVariable("owner_id") ownerId: Long,
-                     @PathVariable("m_request_id") malfunctionRequestId: String): Single<ResponseEntity<Int>> {
+                     @PathVariable("folder_name") folderName: String): Single<ResponseEntity<Int>> {
 
         return Single.just(ownerId)
                 .map { id ->
-                    val result = deleteImagesService.deleteImages(id, malfunctionRequestId)
+                    val result = deleteImagesService.deleteImages(id, folderName)
 
                     when (result) {
                         is DeleteImagesService.Delete.Result.Ok -> {
@@ -82,16 +82,16 @@ class ImageController {
                 }
     }
 
-    @RequestMapping(path = arrayOf("/v1/api/damage_claim_photo/{is_modified_since}/{image_type}/{owner_id}/{folder_name}/{image_name:.+}"),
+    @RequestMapping(path = arrayOf("/v1/api/damage_claim_photo/{image_type}/{owner_id}/{folder_name}/{image_name:.+}/{size}"),
             method = arrayOf(RequestMethod.GET),
             produces = arrayOf(MediaType.IMAGE_PNG_VALUE))
     fun serveImage(@PathVariable("image_type") imageType: Int,
-                    @PathVariable("owner_id") ownerId: Long,
-                    @PathVariable("folder_name") folderName: String,
-                    @PathVariable("image_name") imageName: String,
-                    @PathVariable("is_modified_since") isModifiedSince: Long): Single<ResponseEntity<Resource>> {
+                   @PathVariable("owner_id") ownerId: Long,
+                   @PathVariable("folder_name") folderName: String,
+                   @PathVariable("image_name") imageName: String,
+                   @PathVariable("size") size: String): Single<ResponseEntity<Resource>> {
 
-        return Single.just(ServableImageInfo(imageType, ownerId, folderName, imageName, isModifiedSince))
+        return Single.just(ServableImageInfo(imageType, ownerId, folderName, imageName, size))
                 .map { sii ->
                     val result = serveImageService.serveImage(sii)
 
@@ -101,7 +101,6 @@ class ImageController {
                                     .status(HttpStatus.OK)
                                     .contentType(MediaType.IMAGE_PNG)
                                     .contentLength(result.inputStream.available().toLong())
-                                    .lastModified(result.lastModified)
                                     .body<Resource>(InputStreamResource(result.inputStream))
                         }
 
